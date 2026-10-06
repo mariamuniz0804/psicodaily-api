@@ -1,5 +1,7 @@
 from flask import Flask
 from flask.cli import load_dotenv
+from flask_cors import CORS
+
 from view.auth import auth_bp
 from view.usuarios import usuarios_bp
 # from view.agendamento import agendamento_bp
@@ -9,15 +11,30 @@ from view.profissionais import prof_bp
 from view.consultas import cons_bp
 from view.encaminhamentos import encam_bp
 from view.pagamentos import pagamentos_bp
-from flask_cors import CORS
-# from pathlib import Path
+from view.avaliacoes import avaliacoes_bp
 
 from extensions.websocket import sock
 from view.signaling import signaling_bp
 
+
 load_dotenv()
 
 app = Flask(__name__)
+
+CORS(
+    app,
+    supports_credentials=True,
+    resources={
+        r"/api/*": {
+            "origins": [
+                "http://localhost:5173",
+                "https://psicodaily-front.vercel.app",
+                "http://10.92.11.34:5173"
+            ]
+        }
+    }
+)
+
 sock.init_app(app)
 
 app.register_blueprint(signaling_bp)
@@ -31,18 +48,13 @@ app.register_blueprint(prof_bp)
 app.register_blueprint(cons_bp)
 app.register_blueprint(encam_bp)
 app.register_blueprint(pagamentos_bp)
+app.register_blueprint(avaliacoes_bp)
 
 app.config.from_pyfile("config.py")
 
-CORS(
-    app,
-    supports_credentials=True,
-    origins=[
-        'http://localhost:5173',
-        'https://psicodaily-front.vercel.app',
-        'http://10.92.11.34:5173'
-    ]
-)
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+if __name__ == "__main__":
+    app.run(
+        host="0.0.0.0",
+        port=5000
+    )  
